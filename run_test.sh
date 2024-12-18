@@ -1,25 +1,22 @@
 #!/bin/bash
 
-# Compile the program
-gcc driver.c -o matmul -O2
+# Set variables for the files
+PROGRAM_NAME="matmul"
+DRIVER_FILE="driver.c"
+# MATMUL_FILE="matmul.c"
+OUTPUT_DIR="results"
+REPORT_FILE="test_report.csv"
 
-# CSV Output File
-output_file="results.csv"
-echo "Size,ijk_time" > $output_file
+# Create output directory if it doesn't exist
+mkdir -p $OUTPUT_DIR
 
-# Matrix sizes from 100 to 500 in steps of 20
-for size in $(seq 100 20 500); do
-    echo "Running test for size $size"
+# Step 1: Compile the program
+echo "Compiling the program..."
+gcc $DRIVER_FILE -o $PROGRAM_NAME
 
-    A="Unit_test/unit_${size}/A.txt"
-    B="Unit_test/unit_${size}/B.txt"
-    C="Unit_test/unit_${size}/C.txt"
-
-    # Run the driver program and capture time
-    time_output=$(./matmul $A $B $C $size | grep "Time (ijk):" | awk '{print $3}')
-
-    # Append results to CSV
-    echo "$size,$time_output" >> $output_file
-done
-
-echo "Tests complete. Results saved in $output_file."
+# Check if compilation was successful
+if [ $? -ne 0 ]; then
+    echo "Compilation failed. Exiting."
+    exit 1
+fi
+echo "Compilation successful!"

@@ -1,38 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "matmul.c"
 
+#include "matmul.c"
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        printf("Usage: %s <A.txt> <B.txt> <C.txt> <size>\n", argv[0]);
-        return 1;
+    srand(time(NULL));
+
+    // Define start, increment, and end sizes for testing
+    int start_size = 100;
+    int increment = 20;
+    int end_size = 500;
+
+    // Create the "Unit_test" directory for storing all test cases
+    printf("Attempting to create directory: Unit_test\n");
+    create_directory("Unit_test");
+
+    // Loop through matrix sizes from start_size to end_size
+    for (int size = start_size; size <= end_size; size += increment) {
+        // Construct the directory name for each test case
+        char folder[256];
+        snprintf(folder, sizeof(folder), "Unit_test/unit_%d", size);
+
+        printf("Running test case: %s with size %d\n", folder, size);
+
+        // Create the specific directory for this test case
+        create_directory(folder);
+
+        // Generate test case files A.txt, B.txt, and C.txt
+        generate_test_case(folder, size);
+
+        // Run the test case for this folder and size
+        run_test_case(folder, size, "Matrix Multiplication Test");
+
     }
 
-    int size = atoi(argv[4]);
-    int **A = allocate_matrix(size);
-    int **B = allocate_matrix(size);
-    int **C = allocate_matrix(size);
-    int **C_expected = allocate_matrix(size);
+    // Print a message after all tests are completed
+    printf("All tests completed.\n");
 
-    read_matrix(argv[1], A, size);
-    read_matrix(argv[2], B, size);
-    read_matrix(argv[3], C_expected, size);
-
-    clock_t start, end;
-    double cpu_time_used;
-
-    // Measure time for ijk
-    start = clock();
-    matrix_multiply_ijk(A, B, C, size);
-    end = clock();
-    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("Time (ijk): %f seconds\n", cpu_time_used);
-
-    // Free memory
-    free_matrix(A, size);
-    free_matrix(B, size);
-    free_matrix(C, size);
-    free_matrix(C_expected, size);
     return 0;
 }
